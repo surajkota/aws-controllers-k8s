@@ -170,6 +170,19 @@ func (r *CRD) InputFieldRename(
 	)
 }
 
+// // OverrideFieldShape returns the new shape and whether or not a renamed
+// // override shape type was found
+// func (r *CRD) OverrideFieldShape(
+// 	origFieldName string,
+// ) (string, bool) {
+// 	if r.cfg == nil {
+// 		return origFieldName, false
+// 	}
+// 	return r.cfg.ResourceInputFieldShapeOverride(
+// 		r.Names.Original, origFieldName,
+// 	)
+// }
+
 // AddSpecField adds a new Field of a given name and shape into the Spec
 // field of a CRD
 func (r *CRD) AddSpecField(

@@ -14,6 +14,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-controllers-k8s/pkg/util"
 )
 
@@ -64,6 +66,10 @@ type ResourceConfig struct {
 	// Compare contains instructions for the code generation to generate custom
 	// comparison logic.
 	Compare *CompareConfig `json:"compare,omitempty"`
+	// References is a map, keyed by field name, for which code generator
+	// should generate object references and instructions about the value to be substituted
+	// for this field, checks to perform on resource before value can be substituted
+	References map[string]*ReferenceConfig `json:"references,omitempty"`
 }
 
 // CompareConfig informs instruct the code generator on how to compare two different
@@ -71,6 +77,22 @@ type ResourceConfig struct {
 type CompareConfig struct {
 	// Ignore is a list of field paths to ignore when comparing two objects
 	Ignore []string `json:"ignore"`
+}
+
+// ReferenceConfig informs the code generator about the value to be fetched from spec or status
+// of the related resource and checks to perform which indicate the resource is ready
+type ReferenceConfig struct {
+	APIVersion     string                `json:"api_version"`
+	Kind           string                `json:"kind"`
+	Value          string                `json:"value"`
+	ResourceChecks []ResourceCheckConfig `json:"resource_checks,omitempty"`
+}
+
+// ResourceCheckConfig informs the code generator about the checks to be performed on the resource
+// before Value can be substituted for field name
+type ResourceCheckConfig struct {
+	Field      string `json:"field"`
+	MatchValue string `json:"match_value,omitempty"`
 }
 
 // UnpackAttributesMapConfig informs the code generator that the API follows a
@@ -319,16 +341,28 @@ func (c *Config) ResourceInputFieldRename(
 	if !ok {
 		return origFieldName, false
 	}
-	if rConfig.Renames == nil {
+	if rConfig.Renames == nil && rConfig.References == nil {
 		return origFieldName, false
 	}
-	oRenames, ok := rConfig.Renames.Operations[opID]
-	if !ok {
-		return origFieldName, false
+
+	if rConfig.Renames != nil {
+		oRenames, ok := rConfig.Renames.Operations[opID]
+		if !ok {
+			return origFieldName, false
+		}
+		renamed, ok := oRenames.InputFields[origFieldName]
+		if !ok {
+			return origFieldName, false
+		}
+		return renamed, true
+	} else if rConfig.References != nil {
+		fmt.Println(origFieldName)
+		_, ok := rConfig.References[origFieldName]
+		if !ok {
+			return origFieldName, false
+		}
+		renamed := origFieldName + "Ref"
+		return renamed, true
 	}
-	renamed, ok := oRenames.InputFields[origFieldName]
-	if !ok {
-		return origFieldName, false
-	}
-	return renamed, true
+	return origFieldName, false
 }

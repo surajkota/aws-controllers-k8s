@@ -45,7 +45,7 @@ func TestGetInputShapeRef(t *testing.T) {
 	require := require.New(t)
 
 	description := "Description"
-	s3Key := "S3Key"
+	s3Key := "Mode"
 
 	tests := []struct {
 		opID            string
@@ -63,7 +63,7 @@ func TestGetInputShapeRef(t *testing.T) {
 		{
 			// nested path search
 			"CreateFunction",
-			"Code.S3Key",
+			"FileSystemConfigList.LocalMountPath",
 			&s3Key,
 			true,
 		},

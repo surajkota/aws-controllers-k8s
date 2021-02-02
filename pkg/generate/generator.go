@@ -121,6 +121,9 @@ func (g *Generator) GetCRDs() ([]*ackmodel.CRD, error) {
 				crd.UnpackAttributes()
 				continue
 			}
+			// memberShapeRef := crd.overrideFieldShape(
+			// 	memberName
+			// )
 			crd.AddSpecField(memberNames, memberShapeRef)
 		}
 
@@ -300,6 +303,9 @@ func (g *Generator) GetTypeDefs() ([]*ackmodel.TypeDef, map[string]string, error
 			// Neither are exceptions
 			continue
 		}
+		if shapeName == "ProductionVariants" {
+			fmt.Println(shapeName)
+		}
 		tdefNames := names.New(shapeName)
 		if g.SDKAPI.HasConflictingTypeName(shapeName, g.cfg) {
 			tdefNames.Camel += ackmodel.ConflictingNameSuffix
@@ -308,6 +314,12 @@ func (g *Generator) GetTypeDefs() ([]*ackmodel.TypeDef, map[string]string, error
 
 		attrs := map[string]*ackmodel.Attr{}
 		for memberName, memberRef := range shape.MemberRefs {
+			// if shapeName == "ProductionVariants" {
+			// 	t := fmt.Sprintf("shapeName: %s %s", shapeName, memberName)
+			// 	fmt.Println(t)
+			// }
+			t := fmt.Sprintf("shapeName: %s %s", shapeName, memberName)
+			fmt.Println(t)
 			memberNames := names.New(memberName)
 			memberShape := memberRef.Shape
 			if !g.IsShapeUsedInCRDs(memberShape.ShapeName) {

@@ -21,3 +21,17 @@ type AWSAccountID string
 
 // AWSResourceName represents an AWS Resource Name (ARN)
 type AWSResourceName string
+
+// AWSResourceReference represents a reference to an AWS Resource
+// Either the combination of namepsace and name is used to identify a resource in the cluster
+// or external field if resource is not managed in the cluster
+type AWSResourceReference struct {
+	// Namespace of the resource being referred to
+	Namespace string `json:"namespace,omitempty"`
+	// Name of the resource being referred to
+	Name string `json:"name,omitempty"`
+
+	// external is an alternative field to specify resources which are not
+	// managed by ACK controller
+	External string `json:"external,omitempty"`
+}

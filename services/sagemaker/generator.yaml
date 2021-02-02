@@ -36,6 +36,20 @@ resources:
         from:
           operation: DescribeTrainingJob
           path: FailureReason 
+  EndpointConfig:
+    exceptions:
+      errors:
+        404:
+          code: ValidationException
+          message_prefix: Could not find endpoint configuration
+    references:
+      ProductionVariant.ModelName:
+        apiVersion: sagemaker.services.k8s.aws/v1alpha1
+        kind: Model
+        value: Spec.ModelName
+        # because there are resource which do not have ARN
+        checks:
+          - field: Status.ackResourceMetadata.arn
 ignore:
     resource_names:
       - Algorithm
@@ -45,6 +59,8 @@ ignore:
       - CompilationJob
       - Domain
       - EndpointConfig
+      # - TrainingJob
+      # - Model
       - Endpoint
       - Experiment
       - FlowDefinition
